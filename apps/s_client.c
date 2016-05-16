@@ -308,7 +308,7 @@ static void sc_usage(void)
                " -connect host:port - who to connect to (default is %s:%s)\n",
                SSL_HOST_NAME, PORT_STR);
     BIO_printf(bio_err,
-               " -verify_host host - check peer certificate matches \"host\"\n");
+               " -verify_hostname host - check peer certificate matches \"host\"\n");
     BIO_printf(bio_err,
                " -verify_email email - check peer certificate matches \"email\"\n");
     BIO_printf(bio_err,
@@ -331,6 +331,8 @@ static void sc_usage(void)
                " -pass arg     - private key file pass phrase source\n");
     BIO_printf(bio_err, " -CApath arg   - PEM format directory of CA's\n");
     BIO_printf(bio_err, " -CAfile arg   - PEM format file of CA's\n");
+    BIO_printf(bio_err,
+               " -no_alt_chains - only ever use the first certificate chain found\n");
     BIO_printf(bio_err,
                " -reconnect    - Drop and re-make the connection with the same Session-ID\n");
     BIO_printf(bio_err,
@@ -389,8 +391,6 @@ static void sc_usage(void)
     BIO_printf(bio_err,
                " -bugs         - Switch on all SSL implementation bug workarounds\n");
     BIO_printf(bio_err,
-               " -serverpref   - Use server's cipher preferences (only SSLv2)\n");
-    BIO_printf(bio_err,
                " -cipher       - preferred cipher to use, use the 'openssl ciphers'\n");
     BIO_printf(bio_err,
                "                 command to see what is available\n");
@@ -422,6 +422,14 @@ static void sc_usage(void)
                " -no_ticket        - disable use of RFC4507bis session tickets\n");
     BIO_printf(bio_err,
                " -serverinfo types - send empty ClientHello extensions (comma-separated numbers)\n");
+    BIO_printf(bio_err,
+               " -curves arg       - Elliptic curves to advertise (colon-separated list)\n");
+    BIO_printf(bio_err,
+               " -sigalgs arg      - Signature algorithms to support (colon-separated list)\n");
+    BIO_printf(bio_err,
+               " -client_sigalgs arg - Signature algorithms to support for client\n");
+    BIO_printf(bio_err,
+               "                       certificate authentication (colon-separated list)\n");
 #endif
 #ifndef OPENSSL_NO_NEXTPROTONEG
     BIO_printf(bio_err,
@@ -560,7 +568,7 @@ static char *MS_CALLBACK ssl_give_srp_client_pwd_cb(SSL *s, void *arg)
     PW_CB_DATA cb_tmp;
     int l;
 
-    if(!pass) {
+    if (!pass) {
         BIO_printf(bio_err, "Malloc failure\n");
         return NULL;
     }
@@ -1336,13 +1344,12 @@ int MAIN(int argc, char **argv)
 
     SSL_CTX_set_verify(ctx, verify, verify_callback);
 
-    if ((!SSL_CTX_load_verify_locations(ctx, CAfile, CApath)) ||
-        (!SSL_CTX_set_default_verify_paths(ctx))) {
-        /*
-         * BIO_printf(bio_err,"error setting default verify locations\n");
-         */
+    if ((CAfile || CApath)
+        && !SSL_CTX_load_verify_locations(ctx, CAfile, CApath)) {
         ERR_print_errors(bio_err);
-        /* goto end; */
+    }
+    if (!SSL_CTX_set_default_verify_paths(ctx)) {
+        ERR_print_errors(bio_err);
     }
 
     ssl_ctx_add_crls(ctx, crls, crl_download);
@@ -2064,6 +2071,9 @@ int MAIN(int argc, char **argv)
         sk_X509_pop_free(chain, X509_free);
     if (pass)
         OPENSSL_free(pass);
+#ifndef OPENSSL_NO_SRP
+    OPENSSL_free(srp_arg.srppassin);
+#endif
     if (vpm)
         X509_VERIFY_PARAM_free(vpm);
     ssl_excert_free(exc);

@@ -111,6 +111,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h> /* for memcpy() and strcmp() */
 #define USE_SOCKETS
 #define NON_MAIN
 #include "apps.h"
@@ -456,7 +457,7 @@ int ssl_print_curves(BIO *out, SSL *s, int noshared)
     if (ncurves <= 0)
         return 1;
     curves = OPENSSL_malloc(ncurves * sizeof(int));
-    if(!curves) {
+    if (!curves) {
         BIO_puts(out, "Malloc error getting supported curves\n");
         return 0;
     }
@@ -980,6 +981,11 @@ void MS_CALLBACK tlsext_cb(SSL *s, int client_server, int type,
         extname = "next protocol";
         break;
 #endif
+#ifdef TLSEXT_TYPE_application_layer_protocol_negotiation
+    case TLSEXT_TYPE_application_layer_protocol_negotiation:
+        extname = "application layer protocol negotiation";
+        break;
+#endif
 
     case TLSEXT_TYPE_padding:
         extname = "TLS padding";
@@ -1012,7 +1018,7 @@ int MS_CALLBACK generate_cookie_callback(SSL *ssl, unsigned char *cookie,
 
     /* Initialize a random secret */
     if (!cookie_initialized) {
-        if (!RAND_bytes(cookie_secret, COOKIE_SECRET_LENGTH)) {
+        if (RAND_bytes(cookie_secret, COOKIE_SECRET_LENGTH) <= 0) {
             BIO_printf(bio_err, "error setting random cookie secret\n");
             return 0;
         }

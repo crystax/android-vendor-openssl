@@ -1,6 +1,6 @@
 /* ssl/ssl_err.c */
 /* ====================================================================
- * Copyright (c) 1999-2014 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1999-2015 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -119,6 +119,7 @@ static ERR_STRING_DATA SSL_str_functs[] = {
     {ERR_FUNC(SSL_F_GET_CLIENT_MASTER_KEY), "GET_CLIENT_MASTER_KEY"},
     {ERR_FUNC(SSL_F_GET_SERVER_FINISHED), "GET_SERVER_FINISHED"},
     {ERR_FUNC(SSL_F_GET_SERVER_HELLO), "GET_SERVER_HELLO"},
+    {ERR_FUNC(SSL_F_GET_SERVER_STATIC_DH_KEY), "GET_SERVER_STATIC_DH_KEY"},
     {ERR_FUNC(SSL_F_GET_SERVER_VERIFY), "GET_SERVER_VERIFY"},
     {ERR_FUNC(SSL_F_I2D_SSL_SESSION), "i2d_SSL_SESSION"},
     {ERR_FUNC(SSL_F_READ_N), "READ_N"},
@@ -151,6 +152,7 @@ static ERR_STRING_DATA SSL_str_functs[] = {
     {ERR_FUNC(SSL_F_SSL3_CHECK_CERT_AND_ALGORITHM),
      "ssl3_check_cert_and_algorithm"},
     {ERR_FUNC(SSL_F_SSL3_CHECK_CLIENT_HELLO), "ssl3_check_client_hello"},
+    {ERR_FUNC(SSL_F_SSL3_CHECK_FINISHED), "SSL3_CHECK_FINISHED"},
     {ERR_FUNC(SSL_F_SSL3_CLIENT_HELLO), "ssl3_client_hello"},
     {ERR_FUNC(SSL_F_SSL3_CONNECT), "ssl3_connect"},
     {ERR_FUNC(SSL_F_SSL3_CTRL), "ssl3_ctrl"},
@@ -161,6 +163,8 @@ static ERR_STRING_DATA SSL_str_functs[] = {
      "ssl3_do_change_cipher_spec"},
     {ERR_FUNC(SSL_F_SSL3_ENC), "ssl3_enc"},
     {ERR_FUNC(SSL_F_SSL3_GENERATE_KEY_BLOCK), "SSL3_GENERATE_KEY_BLOCK"},
+    {ERR_FUNC(SSL_F_SSL3_GENERATE_MASTER_SECRET),
+     "ssl3_generate_master_secret"},
     {ERR_FUNC(SSL_F_SSL3_GET_CERTIFICATE_REQUEST),
      "ssl3_get_certificate_request"},
     {ERR_FUNC(SSL_F_SSL3_GET_CERT_STATUS), "ssl3_get_cert_status"},
@@ -310,6 +314,7 @@ static ERR_STRING_DATA SSL_str_functs[] = {
      "SSL_SCAN_CLIENTHELLO_TLSEXT"},
     {ERR_FUNC(SSL_F_SSL_SCAN_SERVERHELLO_TLSEXT),
      "SSL_SCAN_SERVERHELLO_TLSEXT"},
+    {ERR_FUNC(SSL_F_SSL_SESSION_DUP), "ssl_session_dup"},
     {ERR_FUNC(SSL_F_SSL_SESSION_NEW), "SSL_SESSION_new"},
     {ERR_FUNC(SSL_F_SSL_SESSION_PRINT_FP), "SSL_SESSION_print_fp"},
     {ERR_FUNC(SSL_F_SSL_SESSION_SET1_ID_CONTEXT),
@@ -383,8 +388,11 @@ static ERR_STRING_DATA SSL_str_reasons[] = {
      "bad data returned by callback"},
     {ERR_REASON(SSL_R_BAD_DECOMPRESSION), "bad decompression"},
     {ERR_REASON(SSL_R_BAD_DH_G_LENGTH), "bad dh g length"},
+    {ERR_REASON(SSL_R_BAD_DH_G_VALUE), "bad dh g value"},
     {ERR_REASON(SSL_R_BAD_DH_PUB_KEY_LENGTH), "bad dh pub key length"},
+    {ERR_REASON(SSL_R_BAD_DH_PUB_KEY_VALUE), "bad dh pub key value"},
     {ERR_REASON(SSL_R_BAD_DH_P_LENGTH), "bad dh p length"},
+    {ERR_REASON(SSL_R_BAD_DH_P_VALUE), "bad dh p value"},
     {ERR_REASON(SSL_R_BAD_DIGEST_LENGTH), "bad digest length"},
     {ERR_REASON(SSL_R_BAD_DSA_SIGNATURE), "bad dsa signature"},
     {ERR_REASON(SSL_R_BAD_ECC_CERT), "bad ecc cert"},
@@ -458,6 +466,7 @@ static ERR_STRING_DATA SSL_str_reasons[] = {
     {ERR_REASON(SSL_R_DECRYPTION_FAILED), "decryption failed"},
     {ERR_REASON(SSL_R_DECRYPTION_FAILED_OR_BAD_RECORD_MAC),
      "decryption failed or bad record mac"},
+    {ERR_REASON(SSL_R_DH_KEY_TOO_SMALL), "dh key too small"},
     {ERR_REASON(SSL_R_DH_PUBLIC_VALUE_LENGTH_IS_WRONG),
      "dh public value length is wrong"},
     {ERR_REASON(SSL_R_DIGEST_CHECK_FAILED), "digest check failed"},
@@ -638,6 +647,7 @@ static ERR_STRING_DATA SSL_str_reasons[] = {
     {ERR_REASON(SSL_R_SESSION_ID_CONTEXT_UNINITIALIZED),
      "session id context uninitialized"},
     {ERR_REASON(SSL_R_SHORT_READ), "short read"},
+    {ERR_REASON(SSL_R_SHUTDOWN_WHILE_IN_INIT), "shutdown while in init"},
     {ERR_REASON(SSL_R_SIGNATURE_ALGORITHMS_ERROR),
      "signature algorithms error"},
     {ERR_REASON(SSL_R_SIGNATURE_FOR_NON_SIGNING_CERTIFICATE),

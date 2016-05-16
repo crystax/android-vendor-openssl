@@ -168,7 +168,7 @@ int ssl3_send_finished(SSL *s, int a, int b, const char *sender, int slen)
         i = s->method->ssl3_enc->final_finish_mac(s,
                                                   sender, slen,
                                                   s->s3->tmp.finish_md);
-        if (i == 0)
+        if (i <= 0)
             return 0;
         s->s3->tmp.finish_md_len = i;
         memcpy(p, s->s3->tmp.finish_md, i);
@@ -648,7 +648,7 @@ int ssl3_setup_read_buffer(SSL *s)
     unsigned char *p;
     size_t len, align = 0, headerlen;
 
-    if (SSL_version(s) == DTLS1_VERSION || SSL_version(s) == DTLS1_BAD_VER)
+    if (SSL_IS_DTLS(s))
         headerlen = DTLS1_RT_HEADER_LENGTH;
     else
         headerlen = SSL3_RT_HEADER_LENGTH;
@@ -687,7 +687,7 @@ int ssl3_setup_write_buffer(SSL *s)
     unsigned char *p;
     size_t len, align = 0, headerlen;
 
-    if (SSL_version(s) == DTLS1_VERSION || SSL_version(s) == DTLS1_BAD_VER)
+    if (SSL_IS_DTLS(s))
         headerlen = DTLS1_RT_HEADER_LENGTH + 1;
     else
         headerlen = SSL3_RT_HEADER_LENGTH;
